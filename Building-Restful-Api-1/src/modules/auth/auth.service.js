@@ -42,6 +42,12 @@ const login = async({email,password}) => {
     }
 
     // somehow i will check password
+    const isMatch = await user.comparePassword(password);
+
+    if(!isMatch)
+    {
+        throw ApiError.unauthorized("Invalid email or password");
+    }
 
     if(!user.isVerified)
     {
@@ -106,4 +112,11 @@ const forgotPassword = async(email) => {
     await user.save({validateBeforeSave: false});
 }
 
-export {register}
+const getMe = async(userId) => {
+    const user = User.findById(userId);
+    if(!user) throw new ApiError.notfound("User not found");
+
+    return user;
+}
+
+export {register, login, refresh, logOut, forgotPassword}
