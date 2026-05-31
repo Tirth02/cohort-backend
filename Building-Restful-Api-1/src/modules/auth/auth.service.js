@@ -112,6 +112,18 @@ const forgotPassword = async(email) => {
     await user.save({validateBeforeSave: false});
 }
 
+const verifyEmail = async(token) => {
+    const hashedToken = hashToken(token);
+    const user = await User.findOne({verificationToken: hashedToken}).select("+verificationToken")
+
+    if(!user) throw ApiError.unauthorized("Email not found");
+
+    user.isVerified = true
+    user.verificationToken = undefined;
+    await user.save();
+    return user;
+}
+
 const getMe = async(userId) => {
     const user = User.findById(userId);
     if(!user) throw new ApiError.notfound("User not found");
@@ -119,4 +131,4 @@ const getMe = async(userId) => {
     return user;
 }
 
-export {register, login, refresh, logOut, forgotPassword}
+export {register, login, refresh, logOut, forgotPassword, verifyEmail}
